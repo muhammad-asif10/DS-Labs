@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>🧠 DS Week 14 – Sorting Algorithms (UVAS AI‑Lab Style) | Instructor: Azeem Aslam</title>
+
+  <style>
+    :root{
+      --bg:#05060a;
+      --panel:#0b1220;
+      --panel2:#0a0f18;
+      --text:#e9f1ff;
+      --muted:#9fb0c7;
+      --accent:#9cff00;         /* neon lime */
+      --accent2:#00e5ff;        /* neon cyan */
+      --accent3:#ff4dff;        /* neon magenta */
+      --danger:#ff4b4b;
+      --border:rgba(156,255,0,.18);
+      --border2:rgba(0,229,255,.14);
+      --shadow: 0 0 22px rgba(156,255,0,.22), 0 0 42px rgba(0,229,255,.10);
+      --radius:18px;
+      --radius2:26px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      --fast:.18s ease;
+      --slow:.45s ease;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(156,255,0,.10), transparent 55%),
+        radial-gradient(800px 500px at 90% 15%, rgba(0,229,255,.10), transparent 55%),
+        radial-gradient(900px 600px at 50% 85%, rgba(255,77,255,.07), transparent 60%),
+        linear-gradient(180deg, #05060a 0%, #03040a 100%);
+      color:var(--text);
+      font-family:var(--sans);
+      overflow-x:hidden;
+    }
+
+    /* --- subtle animated “particles” --- */
+    .particles{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.55;
+      filter: drop-shadow(0 0 12px rgba(156,255,0,.25));
+    }
+    .p{
+      position:absolute; width:6px; height:6px; border-radius:999px;
+      background: radial-gradient(circle at 35% 35%, #fff, var(--accent));
+      animation: floaty 10s linear infinite;
+      opacity:.75;
+    }
+    .p.cyan{background: radial-gradient(circle at 35% 35%, #fff, var(--accent2));}
+    .p.mag{background: radial-gradient(circle at 35% 35%, #fff, var(--accent3));}
+    @keyframes floaty{
+      0%{ transform: translateY(0) translateX(0) scale(1); opacity:.65;}
+      50%{ transform: translateY(-120px) translateX(30px) scale(1.2); opacity:.9;}
+      100%{ transform: translateY(-260px) translateX(-10px) scale(.9); opacity:.0;}
+    }
+
+    /* --- layout --- */
+    .wrap{
+      max-width:1200px;
+      margin:0 auto;
+      padding:26px 18px 90px;
+    }
+
+    header.hero{
+      position:relative;
+      padding:28px 22px 22px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(10,15,24,.78));
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    header.hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        linear-gradient(90deg, rgba(156,255,0,.25), rgba(0,229,255,.18), rgba(255,77,255,.15));
+      opacity:.18;
+      filter: blur(16px);
+    }
+    header.hero > *{ position:relative; z-index:1; }
+
+    .topline{
+      display:flex; gap:12px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:8px 12px;
+      border:1px solid rgba(156,255,0,.25);
+      border-radius:999px;
+      background: rgba(0,0,0,.25);
+      box-shadow: 0 0 18px rgba(156,255,0,.12);
+      font-size:13px; color:var(--muted);
+    }
+    .badge b{ color:var(--text); font-weight:700;}
+    h1{
+      margin:14px 0 8px;
+      font-size: clamp(24px, 3.2vw, 40px);
+      letter-spacing:.2px;
+      line-height:1.1;
+      text-shadow: 0 0 16px rgba(156,255,0,.14);
+    }
+    .sub{
+      margin:0;
+      color:var(--muted);
+      line-height:1.55;
+      max-width:920px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 330px 1fr;
+      gap:18px;
+      margin-top:18px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns:1fr; }
+    }
+
+    nav.side{
+      position:sticky;
+      top:14px;
+      border:1px solid rgba(0,229,255,.16);
+      background: linear-gradient(180deg, rgba(11,18,32,.90), rgba(10,15,24,.72));
+      border-radius:var(--radius);
+      box-shadow: 0 0 18px rgba(0,229,255,.10);
+      padding:14px;
+    }
+    .navtitle{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-bottom:10px;
+    }
+    .navtitle h3{
+      margin:0; font-size:14px; color:var(--text); letter-spacing:.3px;
+    }
+    .navtitle span{
+      font-size:12px; color:var(--muted);
+      border:1px solid rgba(156,255,0,.22);
+      padding:4px 8px; border-radius:999px;
+      background: rgba(0,0,0,.2);
+    }
+    .navlist{ display:flex; flex-direction:column; gap:8px; }
+    .navlist a{
+      text-decoration:none;
+      color:var(--muted);
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid rgba(156,255,0,.10);
+      background: rgba(0,0,0,.16);
+      transition: transform var(--fast), border var(--fast), color var(--fast);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .navlist a:hover{
+      transform: translateY(-1px);
+      border-color: rgba(156,255,0,.28);
+      color: var(--text);
+      box-shadow: 0 0 18px rgba(156,255,0,.10);
+    }
+    .navlist a small{ color:rgba(0,229,255,.78); font-weight:600; }
+
+    main{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .card{
+      border:1px solid rgba(156,255,0,.16);
+      background: linear-gradient(180deg, rgba(11,18,32,.88), rgba(10,15,24,.70));
+      border-radius:var(--radius);
+      padding:16px 16px 14px;
+      box-shadow: 0 0 16px rgba(156,255,0,.08);
+    }
+    .card.cyan{ border-color: rgba(0,229,255,.18); box-shadow: 0 0 16px rgba(0,229,255,.08); }
+    .card.mag{ border-color: rgba(255,77,255,.18); box-shadow: 0 0 16px rgba(255,77,255,.07); }
+    .card h2{
+      margin:2px 0 8px;
+      font-size: clamp(18px, 2.2vw, 24px);
+      letter-spacing:.2px;
+    }
+    .card h3{
+      margin:12px 0 6px;
+      font-size:15px;
+      color: var(--text);
+    }
+    .k{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid rgba(156,255,0,.22);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      background: rgba(0,0,0,.22);
+      margin-right:8px;
+      margin-bottom:8px;
+    }
+    .k b{ color:var(--text); }
+    p{ margin:6px 0 10px; color:var(--muted); line-height:1.62; }
+
+    .two{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width: 900px){
+      .two{ grid-template-columns:1fr; }
+    }
+
+    .callout{
+      border:1px dashed rgba(0,229,255,.28);
+      background: rgba(0,229,255,.06);
+      border-radius:16px;
+      padding:12px 12px;
+      color:var(--muted);
+    }
+    .callout strong{ color:var(--text); }
+
+    .mini{
+      font-size:12px;
+      color:rgba(233,241,255,.80);
+    }
+
+    /* --- code blocks --- */
+    pre{
+      margin:10px 0 12px;
+      background: radial-gradient(1000px 280px at 30% 0%, rgba(156,255,0,.08), transparent 60%),
+                  radial-gradient(900px 260px at 80% 0%, rgba(0,229,255,.07), transparent 60%),
+                  rgba(0,0,0,.40);
+      border:1px solid rgba(156,255,0,.16);
+      border-radius:16px;
+      padding:12px 12px 10px;
+      overflow:auto;
+      box-shadow: inset 0 0 0 1px rgba(0,229,255,.07);
+    }
+    code, pre code{
+      font-family:var(--mono);
+      font-size:13px;
+      color:#dfffe0;
+      line-height:1.55;
+      tab-size:2;
+    }
+    .codebar{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      margin-top:10px;
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(156,255,0,.22);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      transition: transform var(--fast), border var(--fast), box-shadow var(--fast);
+      user-select:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(156,255,0,.38);
+      box-shadow: 0 0 16px rgba(156,255,0,.12);
+    }
+    .btn.cyan{ border-color: rgba(0,229,255,.24); }
+    .btn.cyan:hover{ border-color: rgba(0,229,255,.40); box-shadow:0 0 16px rgba(0,229,255,.12); }
+    .btn.mag{ border-color: rgba(255,77,255,.24); }
+    .btn.mag:hover{ border-color: rgba(255,77,255,.40); box-shadow:0 0 16px rgba(255,77,255,.12); }
+
+    .table{
+      width:100%;
+      border-collapse:collapse;
+      margin:10px 0 4px;
+      font-size:13px;
+      overflow:hidden;
+      border-radius:16px;
+      border:1px solid rgba(156,255,0,.14);
+      background: rgba(0,0,0,.18);
+    }
+    .table th, .table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      text-align:left;
+      color:var(--muted);
+    }
+    .table th{
+      color:var(--text);
+      font-weight:700;
+      background: rgba(156,255,0,.06);
+    }
+
+    /* --- diagrams --- */
+    .diagram{
+      border:1px solid rgba(0,229,255,.16);
+      background: rgba(0,0,0,.18);
+      border-radius:16px;
+      padding:12px;
+      overflow:auto;
+    }
+    .legend{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin:8px 0 0;
+    }
+    .chip{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(156,255,0,.20);
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .chip.cyan{ border-color: rgba(0,229,255,.22); }
+    .chip.mag{ border-color: rgba(255,77,255,.22); }
+
+    /* --- footer --- */
+    footer{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      opacity:.9;
+    }
+
+    /* smooth anchor offset */
+    section{ scroll-margin-top: 16px; }
+  </style>
+</head>
+
+<body>
+  <!-- floating particles -->
+  <div class="particles" aria-hidden="true">
+    <div class="p" style="left:8%; top:84%; animation-delay:0s"></div>
+    <div class="p cyan" style="left:18%; top:92%; animation-delay:1.2s"></div>
+    <div class="p mag" style="left:30%; top:88%; animation-delay:2.1s"></div>
+    <div class="p" style="left:44%; top:90%; animation-delay:.6s"></div>
+    <div class="p cyan" style="left:60%; top:86%; animation-delay:1.8s"></div>
+    <div class="p mag" style="left:72%; top:94%; animation-delay:2.7s"></div>
+    <div class="p" style="left:86%; top:88%; animation-delay:1.0s"></div>
+  </div>
+
+  <div class="wrap">
+    <header class="hero" id="top">
+      <div class="topline">
+        <div class="badge">📚 <b>Data Structures</b> • Week 14 • Sorting</div>
+        <div class="badge">🏫 UVAS Ravi Campus, Pattoki • BSCS (3rd Semester)</div>
+        <div class="badge">👨‍🏫 Instructor: <b>Azeem Aslam</b></div>
+      </div>
+      <h1>Sorting Algorithms (Selection, Insertion, Merge, Heap)</h1>
+      <p class="sub">
+        This is your full Week 14 lecture + lab manual.
+        Scroll during class. Every code block is fully explained. Includes <b>step‑by‑step diagrams</b> for Merge & Heap sort,
+        plus a <b>mini‑task page</b> for comparison counters and lab evaluation.
+      </p>
+
+      <div class="codebar">
+        <div class="mini">Tip: Use the left menu to jump. Use “Copy Code” buttons for quick lab work.</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn cyan" onclick="window.print()">🖨️ Print / Save PDF</button>
+          <button class="btn" onclick="scrollToTop()">⬆️ Top</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <nav class="side" aria-label="Week 14 Navigation">
+        <div class="navtitle">
+          <h3>🧭 Navigate Week 14</h3>
+          <span>3 Lectures + Lab</span>
+        </div>
+        <div class="navlist">
+          <a href="#l1">L1 — Selection Sort <small>Intro</small></a>
+          <a href="#l2">L2 — Insertion Sort <small>Cards + Stability</small></a>
+          <a href="#l3">L3 — Merge Sort <small>Divide & Conquer</small></a>
+          <a href="#heap">Heap Sort <small>Priority + Heapify</small></a>
+          <a href="#diagrams">Step‑by‑step Diagrams <small>Merge + Heap</small></a>
+          <a href="#counters">Mini‑Task Page <small>Counters</small></a>
+          <a href="#summary">Final Comparison <small>Exam Ready</small></a>
+        </div>
+      </nav>
+
+      <main>
+        <!-- L1 -->
+        <section class="card" id="l1">
+          <h2>🔹 Lecture 1 of 3 — Introduction & Selection Sort</h2>
+          <div class="k">🎯 <b>Focus:</b> Why sorting + Selection Sort + OOP Python</div>
+          <div class="k">🧠 <b>Idea:</b> Pick the smallest again and again</div>
+
+          <h3>Why do we sort data?</h3>
+          <p>
+            Sorting means arranging data (small→big or A→Z). Sorted data makes searching and reporting easier.
+            If your phone contacts are sorted, finding “Usman” is quick. If they are random, you waste time.
+          </p>
+
+          <div class="two">
+            <div class="callout">
+              <strong>Real‑life examples</strong><br>
+              • Students in height order<br>
+              • Roll numbers in attendance sheet<br>
+              • Products by price on an online store<br>
+              • Names alphabetically in contacts
+            </div>
+            <div class="callout">
+              <strong>DS perspective</strong><br>
+              • We sort arrays and lists a lot<br>
+              • Sorted data enables fast search (binary search)<br>
+              • Choosing the right sort matters for large datasets
+            </div>
+          </div>
+
+          <h3>Selection Sort — very simple intuition</h3>
+          <p><b>Rule:</b> Repeatedly pick the smallest element from the unsorted part, and put it in front.</p>
+
+          <div class="callout">
+            <strong>Example:</strong> Array = <code>[25, 10, 35, 5]</code><br>
+            Pass 1: smallest is 5 → move to index 0 → <code>[5, 10, 35, 25]</code><br>
+            Pass 2: remaining <code>[10, 35, 25]</code>, smallest is 10 (already there)<br>
+            Pass 3: remaining <code>[35, 25]</code>, smallest is 25 → swap → <code>[5, 10, 25, 35]</code>
+          </div>
+
+          <h3>Time Complexity (easy words)</h3>
+          <p>Selection sort compares a lot, even if data is already sorted. So it stays slow.</p>
+          <table class="table">
+            <tr><th>Case</th><th>Time</th><th>Note</th></tr>
+            <tr><td>Best</td><td>O(n²)</td><td>Still compares everything</td></tr>
+            <tr><td>Average</td><td>O(n²)</td><td>Same behavior</td></tr>
+            <tr><td>Worst</td><td>O(n²)</td><td>Same behavior</td></tr>
+          </table>
+
+          <div class="codebar">
+            <div class="mini">SelectionSort (OOP) — fully commented</div>
+            <button class="btn" onclick="copyCode('code-selection')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-selection">class SelectionSort:
+    # Constructor: runs when we create an object of this class
+    def __init__(self, arr):
+        # Store the array inside the object so other methods can use it
+        self.arr = arr
+
+    # Main method to perform selection sort
+    def sort(self):
+        # Find the length of the array
+        n = len(self.arr)
+
+        # Outer loop: select a position where we will place the smallest element
+        for i in range(n):
+            # Assume current i is the smallest in the unsorted part
+            min_index = i
+
+            # Inner loop: find the true smallest element in remaining part
+            for j in range(i + 1, n):
+                # Compare current element with current minimum
+                if self.arr[j] &lt; self.arr[min_index]:
+                    # Update min_index if we found a smaller value
+                    min_index = j
+
+            # Swap: put smallest element at position i
+            self.arr[i], self.arr[min_index] = self.arr[min_index], self.arr[i]
+
+        # Return the sorted array
+        return self.arr
+
+# Example usage
+data = [25, 10, 35, 5]
+ss = SelectionSort(data)
+print("Selection Sort Result:", ss.sort())</code></pre>
+
+          <div class="callout">
+            <strong>In‑class activity</strong><br>
+            Apply selection sort manually on <code>[12, 7, 3, 14, 9]</code>.
+            In each pass, mark the minimum and where it moves.
+          </div>
+        </section>
+
+        <!-- L2 -->
+        <section class="card cyan" id="l2">
+          <h2>🔹 Lecture 2 of 3 — Insertion Sort (Cards Analogy + Stability)</h2>
+          <div class="k">🎯 <b>Focus:</b> Cards analogy • Stability • OOP Python</div>
+          <div class="k">🧠 <b>Idea:</b> Insert each new item into the correct place</div>
+
+          <h3>Insertion Sort — intuitive story</h3>
+          <p>
+            Insertion sort builds a sorted part on the left. Each new value is inserted into its correct position
+            by shifting bigger values to the right.
+          </p>
+
+          <div class="two">
+            <div class="callout">
+              <strong>Real‑life analogy (cards)</strong><br>
+              • First card is “sorted” by itself<br>
+              • Take next card → insert at the right place<br>
+              • Repeat until all cards are arranged
+            </div>
+            <div class="callout">
+              <strong>Why it can be faster</strong><br>
+              If data is already almost sorted, insertion sort does very few shifts → becomes fast.
+            </div>
+          </div>
+
+          <h3>Example</h3>
+          <p>Array: <code>[8, 2, 5, 3]</code></p>
+          <div class="callout">
+            Insert 2 → <code>[2, 8, 5, 3]</code><br>
+            Insert 5 → <code>[2, 5, 8, 3]</code><br>
+            Insert 3 → <code>[2, 3, 5, 8]</code>
+          </div>
+
+          <h3>Performance</h3>
+          <table class="table">
+            <tr><th>Case</th><th>Time</th><th>Meaning</th></tr>
+            <tr><td>Best</td><td>O(n)</td><td>Already sorted</td></tr>
+            <tr><td>Average</td><td>O(n²)</td><td>Normal random data</td></tr>
+            <tr><td>Worst</td><td>O(n²)</td><td>Reverse sorted data</td></tr>
+          </table>
+          <p>✅ Stable (keeps relative order of equal elements). Selection sort is not stable.</p>
+
+          <div class="codebar">
+            <div class="mini">InsertionSort (OOP) — fully commented</div>
+            <button class="btn cyan" onclick="copyCode('code-insertion')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-insertion">class InsertionSort:
+    # Constructor: called when we create an object
+    def __init__(self, arr):
+        # Save input array inside the object
+        self.arr = arr
+
+    # Main method to perform insertion sort
+    def sort(self):
+        # Start from index 1 because index 0 alone is already “sorted”
+        for i in range(1, len(self.arr)):
+            # key is the value we want to insert correctly
+            key = self.arr[i]
+
+            # j will move left inside the sorted part
+            j = i - 1
+
+            # Shift bigger elements one step to the right
+            while j &gt;= 0 and self.arr[j] &gt; key:
+                self.arr[j + 1] = self.arr[j]  # shift right
+                j -= 1                          # move left
+
+            # Place key at correct position
+            self.arr[j + 1] = key
+
+        return self.arr
+
+# Example usage
+data = [8, 2, 5, 3]
+isort = InsertionSort(data)
+print("Insertion Sort Result:", isort.sort())</code></pre>
+
+          <div class="callout">
+            <strong>Think & discuss</strong><br>
+            If your data is usually “almost sorted”, which algorithm is better: selection or insertion? (Answer: insertion)
+          </div>
+        </section>
+
+        <!-- L3 Merge -->
+        <section class="card mag" id="l3">
+          <h2>🔹 Lecture 3 of 3 — Merge Sort (Divide & Conquer)</h2>
+          <div class="k">🎯 <b>Focus:</b> O(n log n) • Recursion • Merge step</div>
+          <div class="k">🧠 <b>Idea:</b> Split → sort → merge</div>
+
+          <h3>Merge Sort — concept</h3>
+          <p>
+            Merge sort divides the array into halves, sorts each half, and then merges them.
+            This gives <b>O(n log n)</b> time for best/average/worst — much faster than O(n²) for big data.
+          </p>
+
+          <div class="callout">
+            <strong>Real‑life analogy</strong><br>
+            Big wedding tasks → split into groups → each group finishes → combine everything in order.
+          </div>
+
+          <div class="codebar">
+            <div class="mini">MergeSort (OOP) — fully commented</div>
+            <button class="btn mag" onclick="copyCode('code-merge')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-merge">class MergeSort:
+    # Public method to start merge sort
+    def sort(self, arr):
+        # Base case: 0 or 1 item is already sorted
+        if len(arr) &lt;= 1:
+            return arr
+
+        # Split array into two halves
+        mid = len(arr) // 2
+        left_half = self.sort(arr[:mid])   # recursively sort left
+        right_half = self.sort(arr[mid:])  # recursively sort right
+
+        # Merge the two sorted halves
+        return self.merge(left_half, right_half)
+
+    # Helper method: merge two sorted arrays into one sorted array
+    def merge(self, left, right):
+        result = []   # final merged list
+        i = 0         # pointer for left
+        j = 0         # pointer for right
+
+        # Compare elements and take smaller one first
+        while i &lt; len(left) and j &lt; len(right):
+            if left[i] &lt;= right[j]:
+                result.append(left[i])
+                i += 1
+            else:
+                result.append(right[j])
+                j += 1
+
+        # Add any remaining elements (only one side may have leftover)
+        result.extend(left[i:])
+        result.extend(right[j:])
+        return result
+
+# Example usage
+m = MergeSort()
+data = [4, 1, 7, 3, 6]
+print("Merge Sort Result:", m.sort(data))</code></pre>
+
+          <div class="callout">
+            <strong>Concept check</strong><br>
+            Draw recursion tree for <code>[4, 1, 7, 3]</code>. Show split and merge.
+            (Diagrams provided below.)
+          </div>
+        </section>
+
+        <!-- Heap -->
+        <section class="card cyan" id="heap">
+          <h2>⛰️ Heap Sort — Priority + Heapify (Max Heap)</h2>
+          <div class="k">🎯 <b>Focus:</b> Heapify • Extract max • In‑place</div>
+          <div class="k">🧠 <b>Idea:</b> Largest stays on top</div>
+
+          <h3>Heap Sort — concept</h3>
+          <p>
+            Heap sort uses a <b>binary heap</b> (usually max heap). The largest element is at the root (index 0).
+            Steps: build max heap → repeatedly swap root with last → heapify the reduced heap.
+            Time is <b>O(n log n)</b>, and it sorts in‑place.
+          </p>
+
+          <div class="callout">
+            <strong>Real‑life analogy</strong><br>
+            Emergency room: the most critical patient is treated first. After one patient, next highest priority becomes top.
+          </div>
+
+          <div class="codebar">
+            <div class="mini">HeapSort (OOP) — fully commented</div>
+            <button class="btn cyan" onclick="copyCode('code-heap')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-heap">class HeapSort:
+    # heapify maintains max-heap property for subtree rooted at i
+    def heapify(self, arr, n, i):
+        largest = i             # assume i is largest
+        left = 2 * i + 1        # left child index
+        right = 2 * i + 2       # right child index
+
+        # if left child exists and is bigger than current largest
+        if left &lt; n and arr[left] &gt; arr[largest]:
+            largest = left
+
+        # if right child exists and is bigger than current largest
+        if right &lt; n and arr[right] &gt; arr[largest]:
+            largest = right
+
+        # if largest changed, swap and continue heapifying
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            self.heapify(arr, n, largest)
+
+    # main method to heap sort
+    def sort(self, arr):
+        n = len(arr)
+
+        # Step 1: build a max heap
+        for i in range(n // 2 - 1, -1, -1):
+            self.heapify(arr, n, i)
+
+        # Step 2: extract elements one by one
+        for i in range(n - 1, 0, -1):
+            # move current max to the end
+            arr[i], arr[0] = arr[0], arr[i]
+            # heapify the reduced heap
+            self.heapify(arr, i, 0)
+
+        return arr
+
+# Example usage
+h = HeapSort()
+data = [12, 3, 19, 5, 26]
+print("Heap Sort Result:", h.sort(data))</code></pre>
+
+          <div class="callout">
+            <strong>Practice task</strong><br>
+            Trace heap sort manually for <code>[12, 3, 19, 5]</code>. Build heap then extract max each time.
+            (Diagrams provided below.)
+          </div>
+        </section>
+
+        <!-- Diagrams -->
+        <section class="card" id="diagrams">
+          <h2>🧩 Step‑by‑Step Diagrams (Merge Sort + Heap Sort)</h2>
+          <p>These diagrams are built-in (no internet needed).</p>
+
+          <div class="two">
+            <!-- Merge diagram -->
+            <div class="diagram" aria-label="Merge sort step-by-step diagram">
+              <h3 style="margin:0 0 8px;">Merge Sort Recursion Tree (Example: [4, 1, 7, 3])</h3>
+
+              <svg width="640" height="300" viewBox="0 0 640 300" role="img" aria-label="Merge sort recursion tree">
+                <defs>
+                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <!-- lines -->
+                <g stroke="rgba(0,229,255,.55)" stroke-width="2" fill="none">
+                  <path d="M320 42 L170 110" />
+                  <path d="M320 42 L470 110" />
+                  <path d="M170 110 L95 185" />
+                  <path d="M170 110 L245 185" />
+                  <path d="M470 110 L395 185" />
+                  <path d="M470 110 L545 185" />
+                </g>
+
+                <!-- nodes -->
+                <g filter="url(#glow)" font-family="ui-monospace, Consolas, monospace" font-size="14" text-anchor="middle">
+                  <!-- root -->
+                  <rect x="260" y="16" rx="12" ry="12" width="120" height="46" fill="rgba(156,255,0,.10)" stroke="rgba(156,255,0,.55)"/>
+                  <text x="320" y="44" fill="#e9f1ff">[4,1,7,3]</text>
+
+                  <!-- level 2 -->
+                  <rect x="110" y="86" rx="12" ry="12" width="120" height="46" fill="rgba(0,229,255,.08)" stroke="rgba(0,229,255,.55)"/>
+                  <text x="170" y="114" fill="#e9f1ff">[4,1]</text>
+
+                  <rect x="410" y="86" rx="12" ry="12" width="120" height="46" fill="rgba(0,229,255,.08)" stroke="rgba(0,229,255,.55)"/>
+                  <text x="470" y="114" fill="#e9f1ff">[7,3]</text>
+
+                  <!-- leaves -->
+                  <rect x="45" y="160" rx="12" ry="12" width="100" height="46" fill="rgba(255,77,255,.06)" stroke="rgba(255,77,255,.55)"/>
+                  <text x="95" y="188" fill="#e9f1ff">[4]</text>
+
+                  <rect x="195" y="160" rx="12" ry="12" width="100" height="46" fill="rgba(255,77,255,.06)" stroke="rgba(255,77,255,.55)"/>
+                  <text x="245" y="188" fill="#e9f1ff">[1]</text>
+
+                  <rect x="345" y="160" rx="12" ry="12" width="100" height="46" fill="rgba(255,77,255,.06)" stroke="rgba(255,77,255,.55)"/>
+                  <text x="395" y="188" fill="#e9f1ff">[7]</text>
+
+                  <rect x="495" y="160" rx="12" ry="12" width="100" height="46" fill="rgba(255,77,255,.06)" stroke="rgba(255,77,255,.55)"/>
+                  <text x="545" y="188" fill="#e9f1ff">[3]</text>
+
+                  <!-- merge arrows + results -->
+                  <g stroke="rgba(156,255,0,.55)" stroke-width="2" fill="none">
+                    <path d="M95 206 L170 250" />
+                    <path d="M245 206 L170 250" />
+                    <path d="M395 206 L470 250" />
+                    <path d="M545 206 L470 250" />
+                  </g>
+
+                  <rect x="125" y="232" rx="12" ry="12" width="90" height="44" fill="rgba(156,255,0,.08)" stroke="rgba(156,255,0,.55)"/>
+                  <text x="170" y="259" fill="#e9f1ff">[1,4]</text>
+
+                  <rect x="425" y="232" rx="12" ry="12" width="90" height="44" fill="rgba(156,255,0,.08)" stroke="rgba(156,255,0,.55)"/>
+                  <text x="470" y="259" fill="#e9f1ff">[3,7]</text>
+                </g>
+
+                <!-- final merge text -->
+                <text x="320" y="292" text-anchor="middle" font-family="ui-monospace, Consolas, monospace" font-size="14" fill="rgba(233,241,255,.90)">
+                  Final merge: [1,4] + [3,7] → [1,3,4,7]
+                </text>
+              </svg>
+
+              <div class="legend">
+                <span class="chip">Split (divide)</span>
+                <span class="chip cyan">Small parts</span>
+                <span class="chip mag">Single elements</span>
+              </div>
+            </div>
+
+            <!-- Heap diagram -->
+            <div class="diagram" aria-label="Heap sort step-by-step diagram">
+              <h3 style="margin:0 0 8px;">Heap Sort Steps (Example: [12, 3, 19, 5])</h3>
+
+              <div class="callout" style="margin:0 0 10px;">
+                <strong>What to show students</strong><br>
+                1) Build max heap  2) Swap root with last  3) Heapify again  4) Repeat
+              </div>
+
+              <svg width="640" height="300" viewBox="0 0 640 300" role="img" aria-label="Heap sort visual steps">
+                <defs>
+                  <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                <!-- Step labels -->
+                <g font-family="ui-monospace, Consolas, monospace" font-size="13" fill="rgba(233,241,255,.92)">
+                  <text x="16" y="22">Step 1: Build Max Heap</text>
+                  <text x="330" y="22">Step 2: Extract Max (swap)</text>
+                </g>
+
+                <!-- Left heap (max heap) -->
+                <g filter="url(#glow2)" font-family="ui-monospace, Consolas, monospace" font-size="14" text-anchor="middle">
+                  <!-- edges -->
+                  <g stroke="rgba(0,229,255,.55)" stroke-width="2" fill="none">
+                    <path d="M160 60 L90 120" />
+                    <path d="M160 60 L230 120" />
+                    <path d="M90 120 L60 190" />
+                  </g>
+                  <!-- nodes -->
+                  <circle cx="160" cy="60" r="22" fill="rgba(156,255,0,.12)" stroke="rgba(156,255,0,.60)"/>
+                  <text x="160" y="65" fill="#e9f1ff">19</text>
+
+                  <circle cx="90" cy="120" r="22" fill="rgba(0,229,255,.10)" stroke="rgba(0,229,255,.60)"/>
+                  <text x="90" y="125" fill="#e9f1ff">5</text>
+
+                  <circle cx="230" cy="120" r="22" fill="rgba(0,229,255,.10)" stroke="rgba(0,229,255,.60)"/>
+                  <text x="230" y="125" fill="#e9f1ff">12</text>
+
+                  <circle cx="60" cy="190" r="22" fill="rgba(255,77,255,.08)" stroke="rgba(255,77,255,.60)"/>
+                  <text x="60" y="195" fill="#e9f1ff">3</text>
+
+                  <text x="160" y="238" fill="rgba(233,241,255,.82)" font-size="13">
+                    Array form: [19, 5, 12, 3]
+                  </text>
+                </g>
+
+                <!-- Right: extraction -->
+                <g filter="url(#glow2)" font-family="ui-monospace, Consolas, monospace" font-size="14" text-anchor="middle">
+                  <!-- arrow -->
+                  <path d="M280 140 C305 140, 315 140, 340 140" stroke="rgba(156,255,0,.70)" stroke-width="3" fill="none"/>
+                  <polygon points="340,140 330,134 330,146" fill="rgba(156,255,0,.70)"/>
+
+                  <text x="310" y="128" fill="rgba(233,241,255,.88)" font-size="12">swap 19 ↔ 3</text>
+
+                  <!-- arrays as boxes -->
+                  <g>
+                    <rect x="350" y="62" rx="12" ry="12" width="260" height="54" fill="rgba(0,0,0,.22)" stroke="rgba(0,229,255,.22)"/>
+                    <text x="480" y="95" fill="#e9f1ff">Before swap: [19, 5, 12, 3]</text>
+
+                    <rect x="350" y="132" rx="12" ry="12" width="260" height="54" fill="rgba(0,0,0,.22)" stroke="rgba(255,77,255,.22)"/>
+                    <text x="480" y="165" fill="#e9f1ff">After swap:  [3, 5, 12, 19]</text>
+
+                    <rect x="350" y="202" rx="12" ry="12" width="260" height="54" fill="rgba(0,0,0,.22)" stroke="rgba(156,255,0,.22)"/>
+                    <text x="480" y="235" fill="#e9f1ff">Heapify first 3 items → [12, 5, 3, 19]</text>
+                  </g>
+                </g>
+              </svg>
+
+              <div class="legend">
+                <span class="chip">Max Heap</span>
+                <span class="chip cyan">Swap root with end</span>
+                <span class="chip mag">Heapify reduced heap</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top:12px;">
+            <strong>Teacher tip</strong><br>
+            For merge sort: emphasize “split until one element”, then “merge in sorted order”.<br>
+            For heap sort: emphasize “build heap once”, then “extract max repeatedly”.
+          </div>
+        </section>
+
+        <!-- Counters Mini-task -->
+        <section class="card cyan" id="counters">
+          <h2>🧪 Mini‑Task Page (Lab Evaluation): Comparison Counters</h2>
+          <p>
+            Goal: Students will modify sorting classes to count comparisons / shifts.
+            This is a perfect lab evaluation because it proves they understand the logic.
+          </p>
+
+          <div class="two">
+            <div class="callout">
+              <strong>What to submit</strong><br>
+              • Python file OR screenshot output<br>
+              • Input array + final sorted array<br>
+              • Total comparisons / shifts printed<br>
+              • Short explanation (2 lines)
+            </div>
+            <div class="callout">
+              <strong>Marking idea (quick)</strong><br>
+              • Correct sorting = 60%<br>
+              • Correct counter logic = 30%<br>
+              • Clear output format = 10%
+            </div>
+          </div>
+
+          <h3>Task A — Selection Sort: Count comparisons</h3>
+          <div class="codebar">
+            <div class="mini">Starter code with TODOs</div>
+            <button class="btn cyan" onclick="copyCode('code-counter-selection')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-counter-selection">class SelectionSortCounter:
+    def __init__(self, arr):
+        self.arr = arr
+        self.comparisons = 0  # TODO: keep track of comparisons
+
+    def sort(self):
+        n = len(self.arr)
+
+        for i in range(n):
+            min_index = i
+
+            for j in range(i + 1, n):
+                # We are comparing arr[j] with arr[min_index]
+                self.comparisons += 1  # count the comparison
+
+                if self.arr[j] &lt; self.arr[min_index]:
+                    min_index = j
+
+            self.arr[i], self.arr[min_index] = self.arr[min_index], self.arr[i]
+
+        return self.arr
+
+# Demo
+data = [12, 7, 3, 14, 9]
+s = SelectionSortCounter(data)
+print("Sorted:", s.sort())
+print("Total comparisons:", s.comparisons)</code></pre>
+
+          <h3>Task B — Insertion Sort: Count shifts (moves)</h3>
+          <div class="codebar">
+            <div class="mini">Starter code with TODOs</div>
+            <button class="btn cyan" onclick="copyCode('code-counter-insertion')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-counter-insertion">class InsertionSortCounter:
+    def __init__(self, arr):
+        self.arr = arr
+        self.shifts = 0  # TODO: count shifts (moves)
+
+    def sort(self):
+        for i in range(1, len(self.arr)):
+            key = self.arr[i]
+            j = i - 1
+
+            while j &gt;= 0 and self.arr[j] &gt; key:
+                self.arr[j + 1] = self.arr[j]
+                self.shifts += 1  # count the shift
+                j -= 1
+
+            self.arr[j + 1] = key
+
+        return self.arr
+
+# Demo
+data = [8, 2, 5, 3]
+ins = InsertionSortCounter(data)
+print("Sorted:", ins.sort())
+print("Total shifts:", ins.shifts)</code></pre>
+
+          <h3>Task C — Merge Sort: Count comparisons inside merge()</h3>
+          <div class="codebar">
+            <div class="mini">Starter code with TODOs</div>
+            <button class="btn cyan" onclick="copyCode('code-counter-merge')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-counter-merge">class MergeSortCounter:
+    def __init__(self):
+        self.comparisons = 0  # count comparisons during merge
+
+    def sort(self, arr):
+        if len(arr) &lt;= 1:
+            return arr
+
+        mid = len(arr) // 2
+        left = self.sort(arr[:mid])
+        right = self.sort(arr[mid:])
+        return self.merge(left, right)
+
+    def merge(self, left, right):
+        result = []
+        i = j = 0
+
+        while i &lt; len(left) and j &lt; len(right):
+            self.comparisons += 1  # we compare left[i] and right[j]
+
+            if left[i] &lt;= right[j]:
+                result.append(left[i])
+                i += 1
+            else:
+                result.append(right[j])
+                j += 1
+
+        result.extend(left[i:])
+        result.extend(right[j:])
+        return result
+
+# Demo
+ms = MergeSortCounter()
+data = [4, 1, 7, 3, 6]
+print("Sorted:", ms.sort(data))
+print("Total comparisons:", ms.comparisons)</code></pre>
+
+          <h3>Task D — Heap Sort: Count heap comparisons inside heapify()</h3>
+          <div class="codebar">
+            <div class="mini">Starter code with TODOs</div>
+            <button class="btn cyan" onclick="copyCode('code-counter-heap')">📋 Copy Code</button>
+          </div>
+          <pre><code id="code-counter-heap">class HeapSortCounter:
+    def __init__(self):
+        self.comparisons = 0  # count comparisons in heapify
+
+    def heapify(self, arr, n, i):
+        largest = i
+        left = 2 * i + 1
+        right = 2 * i + 2
+
+        if left &lt; n:
+            self.comparisons += 1  # compare arr[left] with arr[largest]
+            if arr[left] &gt; arr[largest]:
+                largest = left
+
+        if right &lt; n:
+            self.comparisons += 1  # compare arr[right] with arr[largest]
+            if arr[right] &gt; arr[largest]:
+                largest = right
+
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            self.heapify(arr, n, largest)
+
+    def sort(self, arr):
+        n = len(arr)
+
+        for i in range(n // 2 - 1, -1, -1):
+            self.heapify(arr, n, i)
+
+        for i in range(n - 1, 0, -1):
+            arr[i], arr[0] = arr[0], arr[i]
+            self.heapify(arr, i, 0)
+
+        return arr
+
+# Demo
+hs = HeapSortCounter()
+data = [12, 3, 19, 5]
+print("Sorted:", hs.sort(data))
+print("Total comparisons:", hs.comparisons)</code></pre>
+
+          <div class="callout">
+            <strong>Quick extension.</strong><br>
+            Please run all four algorithms on the same array and compare counters.
+            Then write 3 lines: “Which one did least comparisons? Why?”
+          </div>
+        </section>
+
+        <!-- Summary -->
+        <section class="card" id="summary">
+          <h2>✅ Final Comparison — Which Algorithm When?</h2>
+          <table class="table">
+            <tr>
+              <th>Algorithm</th><th>Technique</th><th>Best</th><th>Worst</th><th>Stable?</th><th>Good For</th>
+            </tr>
+            <tr>
+              <td>Selection Sort</td><td>Select minimum repeatedly</td><td>O(n²)</td><td>O(n²)</td><td>No</td><td>Teaching basics, very small datasets</td>
+            </tr>
+            <tr>
+              <td>Insertion Sort</td><td>Insert into sorted left side</td><td>O(n)</td><td>O(n²)</td><td>Yes</td><td>Almost sorted data, small arrays</td>
+            </tr>
+            <tr>
+              <td>Merge Sort</td><td>Divide & conquer + merge</td><td>O(n log n)</td><td>O(n log n)</td><td>Yes</td><td>Large datasets, stable sorting</td>
+            </tr>
+            <tr>
+              <td>Heap Sort</td><td>Binary heap + extract max</td><td>O(n log n)</td><td>O(n log n)</td><td>No</td><td>In‑place sorting, priority systems</td>
+            </tr>
+          </table>
+
+          <div class="callout">
+            <strong>End‑of‑week reflection (4–5 lines)</strong><br>
+            For your project, decide sorting algorithm based on: data size, stability need, and whether data arrives over time.
+          </div>
+        </section>
+
+        <footer>
+          Prepared by <b>Azeem Aslam</b> • UVAS Ravi Campus, Pattoki • CSCI‑27301 Data Structures • Week 14
+        </footer>
+
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function scrollToTop(){ window.scrollTo({top:0, behavior:'smooth'}); }
+
+    function copyCode(id){
+      const el = document.getElementById(id);
+      const text = el.innerText.replace(/\u00a0/g, ' ');
+      navigator.clipboard.writeText(text).then(() => {
+        toast("Copied ✅");
+      }).catch(() => {
+        toast("Copy failed ❌ (Browser blocked clipboard)");
+      });
+    }
+
+    function toast(msg){
+      const t = document.createElement('div');
+      t.textContent = msg;
+      t.style.position='fixed';
+      t.style.bottom='16px';
+      t.style.left='50%';
+      t.style.transform='translateX(-50%)';
+      t.style.padding='10px 14px';
+      t.style.borderRadius='999px';
+      t.style.border='1px solid rgba(156,255,0,.28)';
+      t.style.background='rgba(0,0,0,.55)';
+      t.style.color='#e9f1ff';
+      t.style.boxShadow='0 0 18px rgba(156,255,0,.12)';
+      t.style.fontSize='12px';
+      t.style.zIndex='9999';
+      document.body.appendChild(t);
+      setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .4s ease'; }, 950);
+      setTimeout(()=>{ t.remove(); }, 1400);
+    }
+  </script>
+</body>
+</html>

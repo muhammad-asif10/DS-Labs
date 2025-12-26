@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧠 Data Structures – Week 15 (Binary Search Tree) | Dark Neon Lecture + Lab</title>
+  <style>
+    :root{
+      --bg0:#060712;
+      --bg1:#0a0d1f;
+      --card:#0c1030cc;
+      --card2:#0b1236aa;
+      --text:#e9ecff;
+      --muted:#a9b0ff;
+      --cyan:#3df6ff;
+      --lime:#7CFF6B;
+      --violet:#b36bff;
+      --pink:#ff4fd8;
+      --amber:#ffc84a;
+      --danger:#ff3b6a;
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --glow: 0 0 18px rgba(61,246,255,.25), 0 0 48px rgba(179,107,255,.14);
+      --radius: 18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ margin:0; padding:0; background: radial-gradient(1200px 800px at 20% 10%, rgba(179,107,255,.10), transparent 60%),
+                                       radial-gradient(900px 700px at 80% 20%, rgba(61,246,255,.10), transparent 60%),
+                                       radial-gradient(1200px 900px at 50% 85%, rgba(255,79,216,.08), transparent 60%),
+                                       linear-gradient(180deg, var(--bg0), var(--bg1));
+               color:var(--text); font-family: var(--sans); }
+    a{ color: var(--cyan); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+
+    /* Floating particles */
+    .particles{
+      position: fixed; inset: 0; pointer-events: none; overflow:hidden; z-index:0;
+    }
+    .p{
+      position:absolute; width:6px; height:6px; border-radius:999px;
+      background: rgba(61,246,255,.35);
+      filter: drop-shadow(0 0 10px rgba(61,246,255,.35));
+      animation: drift linear infinite;
+      opacity:.55;
+    }
+    .p.v{ background: rgba(179,107,255,.35); filter: drop-shadow(0 0 10px rgba(179,107,255,.35)); }
+    .p.p{ background: rgba(255,79,216,.30); filter: drop-shadow(0 0 10px rgba(255,79,216,.28)); }
+    @keyframes drift{
+      from{ transform: translate3d(0,0,0); }
+      to{ transform: translate3d(0,-120vh,0); }
+    }
+
+    .wrap{
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 26px 18px 64px;
+    }
+
+    .hero{
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(135deg, rgba(12,16,48,.72), rgba(10,13,31,.55));
+      border-radius: calc(var(--radius) + 8px);
+      box-shadow: var(--shadow);
+      padding: 22px 22px 18px;
+      overflow:hidden;
+      position: relative;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(700px 260px at 10% 0%, rgba(61,246,255,.16), transparent 60%),
+                  radial-gradient(680px 280px at 90% 10%, rgba(179,107,255,.14), transparent 60%),
+                  radial-gradient(820px 320px at 40% 110%, rgba(255,79,216,.10), transparent 60%);
+      z-index:0;
+    }
+    .hero > *{ position:relative; z-index:1; }
+    .title{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between; flex-wrap: wrap;
+    }
+    .title h1{
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: .2px;
+      line-height: 1.15;
+      text-shadow: 0 0 24px rgba(61,246,255,.18);
+    }
+    .badges{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+    .badge{
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(12,16,48,.55);
+      box-shadow: var(--glow);
+      color: var(--muted);
+    }
+    .badge b{ color: var(--text); }
+    .meta{
+      margin-top: 10px;
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: 10px;
+    }
+    .meta .m{
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(12,16,48,.42);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .m .k{ font-size:12px; color: var(--muted); }
+    .m .v{ margin-top:4px; font-weight: 650; }
+
+    .grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card{
+      border: 1px solid rgba(255,255,255,.09);
+      background: linear-gradient(180deg, rgba(12,16,48,.65), rgba(10,13,31,.55));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .card .hd h2{
+      margin:0;
+      font-size: 16px;
+      letter-spacing: .2px;
+    }
+    .card .bd{ padding: 14px 16px 16px; }
+    .sub{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .pillrow{ display:flex; gap:8px; flex-wrap: wrap; margin-top: 10px; }
+    .pill{
+      font-size:12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(61,246,255,.10);
+      border: 1px solid rgba(61,246,255,.18);
+      color: var(--text);
+    }
+    .pill.v{ background: rgba(179,107,255,.10); border-color: rgba(179,107,255,.18); }
+    .pill.p{ background: rgba(255,79,216,.10); border-color: rgba(255,79,216,.18); }
+    .pill.a{ background: rgba(255,200,74,.10); border-color: rgba(255,200,74,.18); }
+
+    details{
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(12,16,48,.40);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    details summary{
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:10px;
+      user-select:none;
+    }
+    details summary::-webkit-details-marker{ display:none; }
+    .sumleft{ display:flex; gap:10px; align-items:center; }
+    .dot{
+      width:10px; height:10px; border-radius: 999px;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(61,246,255,.55);
+    }
+    .dot.v{ background: var(--violet); box-shadow: 0 0 14px rgba(179,107,255,.55); }
+    .dot.p{ background: var(--pink); box-shadow: 0 0 14px rgba(255,79,216,.55); }
+    .dot.a{ background: var(--amber); box-shadow: 0 0 14px rgba(255,200,74,.55); }
+
+    .content p{ margin: 10px 0; line-height: 1.7; color: var(--text); }
+    .content ul{ margin: 10px 0 10px 20px; color: var(--text); }
+    .content li{ margin: 7px 0; line-height: 1.6; }
+    .callout{
+      border-left: 3px solid rgba(61,246,255,.7);
+      background: rgba(61,246,255,.07);
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 12px 0;
+      color: var(--text);
+    }
+    .callout strong{ color: var(--cyan); }
+    .callout.warn{
+      border-left-color: rgba(255,200,74,.75);
+      background: rgba(255,200,74,.08);
+    }
+    .callout.warn strong{ color: var(--amber); }
+    .callout.danger{
+      border-left-color: rgba(255,59,106,.78);
+      background: rgba(255,59,106,.08);
+    }
+    .callout.danger strong{ color: var(--danger); }
+
+    .kpi{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .kpi .box{
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(12,16,48,.38);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+    .box .h{ font-size: 12px; color: var(--muted); }
+    .box .n{ margin-top: 6px; font-size: 14px; font-weight: 700; }
+
+    pre{
+      margin: 10px 0;
+      background: rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 12px 12px;
+      overflow:auto;
+      box-shadow: 0 0 0 1px rgba(61,246,255,.06) inset;
+    }
+    code{ font-family: var(--mono); font-size: 12.5px; color: #eaf6ff; }
+    .codebar{
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px; margin-top: 10px;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(12,16,48,.55);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-weight: 650;
+      letter-spacing:.1px;
+      transition: transform .08s ease, border-color .15s ease, box-shadow .15s ease;
+      user-select:none;
+    }
+    .btn:hover{ border-color: rgba(61,246,255,.30); box-shadow: var(--glow); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.alt:hover{ border-color: rgba(179,107,255,.30); }
+    .btn.pink:hover{ border-color: rgba(255,79,216,.30); }
+    .btn.ghost{
+      background: transparent;
+      border-color: rgba(255,255,255,.10);
+    }
+
+    .inputs{
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-top: 10px;
+    }
+    .inputs input, .inputs select{
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline: none;
+      min-width: 160px;
+    }
+    .inputs input:focus, .inputs select:focus{
+      border-color: rgba(61,246,255,.40);
+      box-shadow: 0 0 0 4px rgba(61,246,255,.08);
+    }
+
+    .canvasWrap{
+      margin-top: 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 0 0 1px rgba(179,107,255,.06) inset;
+    }
+    canvas{
+      width: 100%;
+      height: 360px;
+      display:block;
+      border-radius: 12px;
+      background: radial-gradient(900px 420px at 50% 10%, rgba(61,246,255,.07), transparent 55%),
+                  radial-gradient(700px 420px at 80% 70%, rgba(179,107,255,.07), transparent 55%),
+                  rgba(0,0,0,.18);
+    }
+    .log{
+      margin-top:10px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #dbe2ff;
+      line-height:1.55;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+      padding: 10px 10px;
+      max-height: 160px;
+      overflow:auto;
+    }
+    .log .t{ color: rgba(61,246,255,.9); }
+
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .footer{
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+      .meta{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .kpi{ grid-template-columns: 1fr; }
+      canvas{ height: 320px; }
+      .twoCol{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="title">
+        <div>
+          <h1>🧠 Data Structures – Week 15 (Binary Search Tree)</h1>
+          <div class="sub">Dark Neon Lecture (3 Lectures) + Lab (BST Operations) • Fully-commented Python • Interactive BST Delete Animation</div>
+          <div class="pillrow">
+            <span class="pill">BST Basics</span>
+            <span class="pill v">Search + Insert</span>
+            <span class="pill p">Delete (3 Cases)</span>
+            <span class="pill a">Min/Max + Node Count</span>
+          </div>
+        </div>
+        <div class="badges">
+          <span class="badge"><b>Instructor:</b> Azeem Aslam</span>
+          <span class="badge"><b>Duration:</b> 3 Lectures + 1 Lab</span>
+          <span class="badge"><b>Language:</b> Python</span>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="m"><div class="k">Week Focus</div><div class="v">BST Thinking</div></div>
+        <div class="m"><div class="k">Skill</div><div class="v">Ordered Data</div></div>
+        <div class="m"><div class="k">Core Topic</div><div class="v">Deletion Cases</div></div>
+        <div class="m"><div class="k">Lab Output</div><div class="v">Working BST</div></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <!-- LEFT: LECTURES -->
+      <section class="card">
+        <div class="hd">
+          <h2>📘 Lecture Pack (Week 15)</h2>
+          <button class="btn ghost" id="expandAll">Expand All</button>
+        </div>
+        <div class="bd content">
+
+          <details open>
+            <summary>
+              <div class="sumleft"><span class="dot"></span><b>Lecture 1 — BST Basics (What + Why)</b></div>
+              <span class="badge">Concept Building</span>
+            </summary>
+            <div class="content">
+              <p><b>Binary Search Tree (BST)</b> is a special binary tree that keeps values in an <b>ordered</b> way.</p>
+              <div class="callout">
+                <strong>BST Rule:</strong> For every node: <b>left subtree values &lt; node value &lt; right subtree values</b>.
+              </div>
+
+              <p><b>Real-life example:</b> A file cabinet sorted by roll number:</p>
+              <ul>
+                <li>Smaller roll numbers go to the <b>left side</b>.</li>
+                <li>Bigger roll numbers go to the <b>right side</b>.</li>
+                <li>So you don’t scan everything — you choose direction logically.</li>
+              </ul>
+
+              <p><b>Why BST?</b> Because it gives fast operations when the tree is reasonably balanced:</p>
+              <div class="kpi">
+                <div class="box"><div class="h">Search</div><div class="n">~ O(log n)</div></div>
+                <div class="box"><div class="h">Insert</div><div class="n">~ O(log n)</div></div>
+                <div class="box"><div class="h">Delete</div><div class="n">~ O(log n)</div></div>
+              </div>
+
+              <div class="callout warn">
+                <strong>Important:</strong> If the BST becomes like a straight line (skewed), performance becomes <b>O(n)</b>.
+              </div>
+
+              <p><b>DS example:</b> Insert values: <code>50, 30, 70, 20, 40, 60, 80</code>. The BST automatically stores them in order.</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <div class="sumleft"><span class="dot v"></span><b>Lecture 2 — Searching & Insertion (How it Works)</b></div>
+              <span class="badge">Operations</span>
+            </summary>
+            <div class="content">
+              <p><b>Searching</b> in BST is like playing “higher / lower”:</p>
+              <ul>
+                <li>If the target equals current node → <b>found</b>.</li>
+                <li>If target is smaller → go <b>left</b>.</li>
+                <li>If target is bigger → go <b>right</b>.</li>
+              </ul>
+
+              <div class="callout">
+                <strong>Key thinking:</strong> Every comparison removes half the remaining options (in a good BST).
+              </div>
+
+              <p><b>Insertion</b> follows the same path as search:</p>
+              <ul>
+                <li>Move left/right until you hit an empty spot.</li>
+                <li>Place the new node there.</li>
+                <li>BST rule stays safe.</li>
+              </ul>
+
+              <p><b>Real-life:</b> Adding a new student record into a sorted register — you insert at correct position, you don’t shuffle all pages.</p>
+
+              <details>
+                <summary>
+                  <div class="sumleft"><span class="dot a"></span><b>Mini Example</b></div>
+                  <span class="badge">Try in Mind</span>
+                </summary>
+                <div class="content">
+                  <p>Insert: <code>50</code> (root)</p>
+                  <p>Insert: <code>30</code> → goes left of 50</p>
+                  <p>Insert: <code>70</code> → goes right of 50</p>
+                  <p>Insert: <code>40</code> → left of 50, then right of 30</p>
+                </div>
+              </details>
+            </div>
+          </details>
+
+          <details>
+            <summary>
+              <div class="sumleft"><span class="dot p"></span><b>Lecture 3 — Deletion + Min/Max + Node Counting</b></div>
+              <span class="badge">Most Tested</span>
+            </summary>
+            <div class="content">
+              <p><b>Minimum value</b> in BST is always the <b>left-most</b> node (keep going left).</p>
+              <p><b>Maximum value</b> in BST is always the <b>right-most</b> node (keep going right).</p>
+
+              <div class="callout">
+                <strong>Node Counting:</strong> Count nodes by traversing the tree (recursion is perfect here).
+              </div>
+
+              <p><b>Deletion</b> is the most important BST operation. There are <b>3 cases</b>:</p>
+              <div class="twoCol">
+                <div class="callout">
+                  <strong>Case 1: Leaf Node</strong><br/>
+                  Node has no children → delete directly.
+                </div>
+                <div class="callout">
+                  <strong>Case 2: One Child</strong><br/>
+                  Connect parent directly to the child.
+                </div>
+              </div>
+
+              <div class="callout warn">
+                <strong>Case 3: Two Children</strong><br/>
+                Replace the node with its <b>inorder successor</b> (minimum in right subtree), then delete that successor.
+              </div>
+
+              <p><b>Real-life:</b> Removing a manager from an organization:</p>
+              <ul>
+                <li>No juniors → remove easily.</li>
+                <li>One junior → junior takes the position.</li>
+                <li>Two juniors → choose the best replacement and adjust structure.</li>
+              </ul>
+
+              <div class="callout danger">
+                <strong>Exam Tip:</strong> In deletion with two children, students must remember: <b>successor = min of right subtree</b>.
+              </div>
+            </div>
+          </details>
+
+        </div>
+      </section>
+
+      <!-- RIGHT: LAB + VISUAL -->
+      <aside class="card">
+        <div class="hd">
+          <h2>🧪 Lab (Week 15) + BST Visual Animation</h2>
+          <span class="badge"><b>Goal:</b> Search / Insert / Delete</span>
+        </div>
+        <div class="bd content">
+          <p>In this lab, students build a working BST and perform operations. Use the visual tool below to <b>see deletion</b> step-by-step.</p>
+
+          <div class="callout">
+            <strong>Lab Checklist:</strong>
+            <ul>
+              <li>Create BST</li>
+              <li>Insert values</li>
+              <li>Search a node</li>
+              <li>Find Min/Max</li>
+              <li>Count nodes</li>
+              <li>Delete nodes (3 cases)</li>
+            </ul>
+          </div>
+
+          <div class="inputs">
+            <input id="valueInput" type="number" placeholder="Enter value (e.g., 40)" />
+            <button class="btn" id="btnInsert">Insert</button>
+            <button class="btn alt" id="btnSearch">Search</button>
+            <button class="btn pink" id="btnDelete">Delete (Animate)</button>
+            <button class="btn ghost" id="btnReset">Reset</button>
+          </div>
+
+          <div class="pillrow" style="margin-top:10px;">
+            <span class="pill">Tip: Insert sample: 50,30,70,20,40,60,80</span>
+          </div>
+
+          <div class="canvasWrap">
+            <canvas id="bstCanvas" width="1000" height="360" aria-label="BST Canvas"></canvas>
+          </div>
+
+          <div class="log" id="log">
+            <div><span class="t">Log:</span> Ready. Insert values to build the BST.</div>
+          </div>
+
+          <details style="margin-top:12px;">
+            <summary>
+              <div class="sumleft"><span class="dot a"></span><b>Practice (Output-based) Questions</b></div>
+              <span class="badge">20 Questions</span>
+            </summary>
+            <div class="content">
+              <ul>
+                <li>Insert 7 values and print inorder traversal. What output do you expect?</li>
+                <li>Insert values in sorted order. What shape does BST become?</li>
+                <li>Delete a leaf node and print inorder.</li>
+                <li>Delete a node with one child and print inorder.</li>
+                <li>Delete a node with two children and show successor chosen.</li>
+                <li>Find minimum and maximum in a BST built from 10 values.</li>
+                <li>Count total nodes using recursion.</li>
+                <li>Count leaf nodes.</li>
+                <li>Count nodes with exactly one child.</li>
+                <li>Print height of the BST.</li>
+                <li>Search for 3 values: one present, two absent. Print results.</li>
+                <li>Insert duplicates: what policy will you follow (ignore / count / side)?</li>
+                <li>Build BST from random values and compare search time vs list search (conceptually).</li>
+                <li>Given preorder, can you construct BST? (concept)</li>
+                <li>Explain why inorder traversal prints sorted output in BST.</li>
+                <li>Write function to validate BST property.</li>
+                <li>Delete root node in each of the three cases.</li>
+                <li>Write function to find predecessor (max in left subtree).</li>
+                <li>Print all values between [L, R] in BST.</li>
+                <li>Implement iterative search (no recursion).</li>
+              </ul>
+            </div>
+          </details>
+        </div>
+      </aside>
+    </div>
+
+    <!-- PYTHON CODE -->
+    <section class="card" style="margin-top:14px;">
+      <div class="hd">
+        <h2>🐍 Fully Commented Python Code (BST كامل)</h2>
+        <div class="codebar">
+          <button class="btn" data-copy="#codeBST">Copy Code</button>
+          <button class="btn alt" data-copy="#codeMini">Copy Mini Test</button>
+        </div>
+      </div>
+      <div class="bd content">
+        <p>This Python implementation covers: <b>insert, search, delete (3 cases), min/max, count nodes, inorder traversal</b>.</p>
+
+        <pre id="codeBST"><code># =========================
+# Binary Search Tree (BST)
+# Week 15 - Data Structures
+# =========================
+# This file is intentionally written with very clear comments
+# so students can understand every line.
+
+from __future__ import annotations
+from dataclasses import dataclass
+from typing import Optional, List
+
+
+@dataclass
+class Node:
+    # Each node stores:
+    # 1) value: data of the node
+    # 2) left : pointer/reference to left child
+    # 3) right: pointer/reference to right child
+    value: int
+    left: Optional["Node"] = None
+    right: Optional["Node"] = None
+
+
+class BST:
+    def __init__(self) -> None:
+        # Start with an empty tree
+        self.root: Optional[Node] = None
+
+    # -------------------------
+    # INSERT
+    # -------------------------
+    def insert(self, value: int) -> None:
+        # Public method: insert a value into BST
+        self.root = self._insert(self.root, value)
+
+    def _insert(self, node: Optional[Node], value: int) -> Node:
+        # If we reached an empty spot, create a new node here
+        if node is None:
+            return Node(value)
+
+        # If value is smaller, go left
+        if value &lt; node.value:
+            node.left = self._insert(node.left, value)
+
+        # If value is bigger, go right
+        elif value &gt; node.value:
+            node.right = self._insert(node.right, value)
+
+        # If value is equal, we ignore duplicates (policy choice)
+        # (You can also store duplicates on one side, but keep it simple here)
+        return node
+
+    # -------------------------
+    # SEARCH
+    # -------------------------
+    def search(self, value: int) -> bool:
+        # Return True if value exists, else False
+        return self._search(self.root, value)
+
+    def _search(self, node: Optional[Node], value: int) -> bool:
+        # If node is None, value not found
+        if node is None:
+            return False
+
+        # If matches current node, found
+        if value == node.value:
+            return True
+
+        # Smaller: search left
+        if value &lt; node.value:
+            return self._search(node.left, value)
+
+        # Bigger: search right
+        return self._search(node.right, value)
+
+    # -------------------------
+    # MIN / MAX
+    # -------------------------
+    def min_value(self) -> Optional[int]:
+        # Minimum is the left-most node
+        node = self.root
+        if node is None:
+            return None
+        while node.left is not None:
+            node = node.left
+        return node.value
+
+    def max_value(self) -> Optional[int]:
+        # Maximum is the right-most node
+        node = self.root
+        if node is None:
+            return None
+        while node.right is not None:
+            node = node.right
+        return node.value
+
+    # -------------------------
+    # COUNT NODES
+    # -------------------------
+    def count_nodes(self) -> int:
+        # Count all nodes in BST
+        return self._count_nodes(self.root)
+
+    def _count_nodes(self, node: Optional[Node]) -> int:
+        # If empty, count is 0
+        if node is None:
+            return 0
+        # Count = 1 (this node) + left subtree + right subtree
+        return 1 + self._count_nodes(node.left) + self._count_nodes(node.right)
+
+    # -------------------------
+    # TRAVERSAL (INORDER)
+    # -------------------------
+    def inorder(self) -> List[int]:
+        # Inorder traversal prints BST values in sorted order
+        result: List[int] = []
+        self._inorder(self.root, result)
+        return result
+
+    def _inorder(self, node: Optional[Node], result: List[int]) -> None:
+        if node is None:
+            return
+        # 1) visit left
+        self._inorder(node.left, result)
+        # 2) visit node
+        result.append(node.value)
+        # 3) visit right
+        self._inorder(node.right, result)
+
+    # -------------------------
+    # DELETE (3 CASES)
+    # -------------------------
+    def delete(self, value: int) -> None:
+        # Public method: delete a value from BST
+        self.root = self._delete(self.root, value)
+
+    def _delete(self, node: Optional[Node], value: int) -> Optional[Node]:
+        # If node is empty, nothing to delete
+        if node is None:
+            return None
+
+        # Step 1: Find the node to delete (same as search path)
+        if value &lt; node.value:
+            node.left = self._delete(node.left, value)
+            return node
+        if value &gt; node.value:
+            node.right = self._delete(node.right, value)
+            return node
+
+        # Now value == node.value, so this is the node to delete.
+
+        # Case 1: Leaf node (no children)
+        if node.left is None and node.right is None:
+            return None
+
+        # Case 2: One child (right child only)
+        if node.left is None:
+            return node.right
+
+        # Case 2: One child (left child only)
+        if node.right is None:
+            return node.left
+
+        # Case 3: Two children
+        # Find inorder successor = minimum in right subtree
+        successor = self._min_node(node.right)
+        assert successor is not None  # for type checker
+
+        # Replace current node's value with successor's value
+        node.value = successor.value
+
+        # Delete the successor node from right subtree
+        node.right = self._delete(node.right, successor.value)
+
+        return node
+
+    def _min_node(self, node: Optional[Node]) -> Optional[Node]:
+        # Return the left-most node of the subtree
+        if node is None:
+            return None
+        while node.left is not None:
+            node = node.left
+        return node
+</code></pre>
+
+        <pre id="codeMini"><code># -------------------------
+# MINI TEST (Run this)
+# -------------------------
+if __name__ == "__main__":
+    bst = BST()
+
+    # Insert sample values
+    for v in [50, 30, 70, 20, 40, 60, 80]:
+        bst.insert(v)
+
+    print("Inorder (sorted):", bst.inorder())
+    print("Search 40:", bst.search(40))
+    print("Min:", bst.min_value(), "Max:", bst.max_value())
+    print("Count:", bst.count_nodes())
+
+    # Delete examples:
+    bst.delete(20)  # leaf
+    print("After deleting 20:", bst.inorder())
+
+    bst.delete(30)  # one child (after 20 removed, 30 has child 40)
+    print("After deleting 30:", bst.inorder())
+
+    bst.delete(50)  # two children (root)
+    print("After deleting 50:", bst.inorder())
+</code></pre>
+
+        <div class="callout warn">
+          <strong>Note:</strong> This is the same logic used in C++/Java BST implementations — once students understand this, they can transfer it to any language.
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      Week 15 ready ✅ • Next: Week 16 (Graphs + DFS) and Week 17 (Dijkstra + MST) will use the same Dark Neon style + animations.
+    </div>
+  </div>
+
+  <script>
+    // ------------------------------
+    // Neon particles (visual polish)
+    // ------------------------------
+    (function makeParticles(){
+      const box = document.getElementById("particles");
+      const count = 36;
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        const r = Math.random();
+        d.className = "p" + (r<0.33 ? "" : r<0.66 ? " v" : " p");
+        const left = Math.random()*100;
+        const top = 100 + Math.random()*70;
+        const dur = 10 + Math.random()*18;
+        const delay = -Math.random()*dur;
+        const size = 4 + Math.random()*7;
+        d.style.left = left + "vw";
+        d.style.top = top + "vh";
+        d.style.width = size + "px";
+        d.style.height = size + "px";
+        d.style.animationDuration = dur + "s";
+        d.style.animationDelay = delay + "s";
+        d.style.opacity = (0.25 + Math.random()*0.5).toFixed(2);
+        box.appendChild(d);
+      }
+    })();
+
+    // ------------------------------
+    // Expand/Collapse all details
+    // ------------------------------
+    const expandAllBtn = document.getElementById("expandAll");
+    expandAllBtn.addEventListener("click", () => {
+      const all = Array.from(document.querySelectorAll("details"));
+      const anyClosed = all.some(d => !d.open);
+      all.forEach(d => d.open = anyClosed);
+      expandAllBtn.textContent = anyClosed ? "Collapse All" : "Expand All";
+    });
+
+    // ------------------------------
+    // Copy buttons for code blocks
+    // ------------------------------
+    document.querySelectorAll("[data-copy]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const sel = btn.getAttribute("data-copy");
+        const el = document.querySelector(sel);
+        if(!el) return;
+        const txt = el.innerText;
+        try{
+          await navigator.clipboard.writeText(txt);
+          const old = btn.textContent;
+          btn.textContent = "Copied ✅";
+          setTimeout(()=> btn.textContent = old, 900);
+        }catch(e){
+          alert("Copy failed (browser permission).");
+        }
+      });
+    });
+
+    // ------------------------------
+    // BST Visualizer (JS) - animation
+    // ------------------------------
+    const canvas = document.getElementById("bstCanvas");
+    const ctx = canvas.getContext("2d");
+    const logBox = document.getElementById("log");
+
+    function log(msg){
+      const line = document.createElement("div");
+      line.innerHTML = msg;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+    function clearLog(){
+      logBox.innerHTML = '<div><span class="t">Log:</span> Reset. Insert values to build the BST.</div>';
+    }
+
+    class BNode{
+      constructor(v){
+        this.v = v;
+        this.left = null;
+        this.right = null;
+        this.x = 0; this.y = 0;
+      }
+    }
+
+    class BSTVis{
+      constructor(){
+        this.root = null;
+        this.highlight = new Set(); // values highlighted
+        this.path = []; // step-by-step path
+        this.animating = false;
+      }
+
+      insert(v){
+        if(this.root === null){
+          this.root = new BNode(v);
+          return true;
+        }
+        let cur = this.root;
+        while(true){
+          if(v === cur.v) return false; // ignore duplicates
+          if(v < cur.v){
+            if(cur.left === null){ cur.left = new BNode(v); return true; }
+            cur = cur.left;
+          }else{
+            if(cur.right === null){ cur.right = new BNode(v); return true; }
+            cur = cur.right;
+          }
+        }
+      }
+
+      search(v){
+        let cur = this.root;
+        const path = [];
+        while(cur){
+          path.push(cur.v);
+          if(v === cur.v) return {found:true, path};
+          cur = (v < cur.v) ? cur.left : cur.right;
+        }
+        return {found:false, path};
+      }
+
+      // Helper: find min node in a subtree (and its parent)
+      minWithParent(node){
+        let parent = null, cur = node;
+        while(cur && cur.left){
+          parent = cur;
+          cur = cur.left;
+        }
+        return {min: cur, parent};
+      }
+
+      // Delete with step capture (for animation). Returns new subtree root.
+      deleteCapture(node, v, steps){
+        if(node === null){
+          steps.push({type:"note", msg:`Value <b>${v}</b> not found. Nothing to delete.`});
+          return null;
+        }
+
+        steps.push({type:"visit", value: node.v, msg:`Visit node <b>${node.v}</b>. Compare with <b>${v}</b>.`});
+
+        if(v < node.v){
+          steps.push({type:"move", value: node.v, dir:"left", msg:`${v} is smaller → go <b>LEFT</b>.`});
+          node.left = this.deleteCapture(node.left, v, steps);
+          return node;
+        }
+        if(v > node.v){
+          steps.push({type:"move", value: node.v, dir:"right", msg:`${v} is bigger → go <b>RIGHT</b>.`});
+          node.right = this.deleteCapture(node.right, v, steps);
+          return node;
+        }
+
+        // Found node
+        steps.push({type:"found", value: node.v, msg:`Found node <b>${node.v}</b> to delete.`});
+
+        // Case 1: leaf
+        if(!node.left && !node.right){
+          steps.push({type:"case", value: node.v, msg:`Case 1: <b>Leaf node</b>. Delete directly.`});
+          return null;
+        }
+
+        // Case 2: one child
+        if(!node.left){
+          steps.push({type:"case", value: node.v, msg:`Case 2: <b>One child</b> (right). Replace with right child.`});
+          return node.right;
+        }
+        if(!node.right){
+          steps.push({type:"case", value: node.v, msg:`Case 2: <b>One child</b> (left). Replace with left child.`});
+          return node.left;
+        }
+
+        // Case 3: two children
+        steps.push({type:"case", value: node.v, msg:`Case 3: <b>Two children</b>. Find inorder successor (min in right subtree).`});
+        const {min, parent} = this.minWithParent(node.right);
+        if(min){
+          steps.push({type:"successor", value: min.v, msg:`Inorder successor is <b>${min.v}</b>. Replace ${node.v} → ${min.v}.`});
+          node.v = min.v;
+          // Delete successor in right subtree
+          steps.push({type:"cleanup", value: min.v, msg:`Now delete successor node <b>${min.v}</b> from right subtree.`});
+          node.right = this.deleteCapture(node.right, min.v, steps);
+        }
+        return node;
+      }
+
+      deleteAnimate(v){
+        if(this.animating) return;
+        const steps = [];
+        this.highlight.clear();
+        this.root = this.deleteCapture(this.root, v, steps);
+        if(steps.length === 0) return;
+
+        this.animating = true;
+        let i = 0;
+
+        const tick = () => {
+          if(i >= steps.length){
+            this.highlight.clear();
+            this.animating = false;
+            drawAll();
+            log(`<span class="t">Done:</span> Deletion process finished.`);
+            return;
+          }
+          const s = steps[i++];
+          this.highlight.clear();
+
+          if(s.type === "visit" || s.type === "found" || s.type === "case" || s.type === "successor" || s.type === "cleanup"){
+            this.highlight.add(s.value);
+          }
+          log(s.msg);
+          drawAll();
+          setTimeout(tick, 720);
+        };
+        tick();
+      }
+
+      reset(){
+        this.root = null;
+        this.highlight.clear();
+        this.animating = false;
+      }
+    }
+
+    const tree = new BSTVis();
+
+    // ------------------------------
+    // Layout + Draw
+    // ------------------------------
+    function resizeCanvasToDisplaySize(){
+      // Keep internal resolution crisp
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.floor(rect.width * dpr);
+      const h = Math.floor(rect.height * dpr);
+      if(canvas.width !== w || canvas.height !== h){
+        canvas.width = w;
+        canvas.height = h;
+      }
+    }
+
+    function computePositions(root){
+      // Simple tidy layout using inorder indexing
+      const nodes = [];
+      function inorder(node, depth){
+        if(!node) return;
+        inorder(node.left, depth+1);
+        nodes.push({node, depth});
+        inorder(node.right, depth+1);
+      }
+      inorder(root, 0);
+
+      // Assign x by inorder index, y by depth
+      const W = canvas.width, H = canvas.height;
+      const padX = 60, padY = 50;
+      const usableW = Math.max(1, W - 2*padX);
+      const maxDepth = nodes.reduce((m,x)=>Math.max(m,x.depth), 0);
+      const dy = (maxDepth === 0) ? 0 : Math.min(110, (H - 2*padY) / (maxDepth+0.2));
+
+      nodes.forEach((it, idx) => {
+        it.node.x = padX + (idx + 0.5) * (usableW / Math.max(1, nodes.length));
+        it.node.y = padY + it.depth * dy + 20;
+      });
+    }
+
+    function drawEdges(node){
+      if(!node) return;
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(200,210,255,0.22)";
+      if(node.left){
+        ctx.beginPath();
+        ctx.moveTo(node.x, node.y);
+        ctx.lineTo(node.left.x, node.left.y);
+        ctx.stroke();
+      }
+      if(node.right){
+        ctx.beginPath();
+        ctx.moveTo(node.x, node.y);
+        ctx.lineTo(node.right.x, node.right.y);
+        ctx.stroke();
+      }
+      drawEdges(node.left);
+      drawEdges(node.right);
+    }
+
+    function drawNode(node){
+      const r = 18;
+      const glow = tree.highlight.has(node.v);
+
+      // Node fill
+      const grad = ctx.createRadialGradient(node.x-6, node.y-6, 2, node.x, node.y, 28);
+      grad.addColorStop(0, glow ? "rgba(61,246,255,0.70)" : "rgba(179,107,255,0.40)");
+      grad.addColorStop(1, "rgba(0,0,0,0.25)");
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI*2);
+      ctx.fill();
+
+      // Outer ring
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = glow ? "rgba(61,246,255,0.85)" : "rgba(255,255,255,0.18)";
+      ctx.shadowColor = glow ? "rgba(61,246,255,0.55)" : "transparent";
+      ctx.shadowBlur = glow ? 18 : 0;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, r, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Text
+      ctx.fillStyle = "rgba(234,246,255,0.95)";
+      ctx.font = `${Math.round(13*(window.devicePixelRatio||1))}px ui-monospace, Menlo, Consolas, monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(node.v), node.x, node.y+0.5);
+    }
+
+    function drawNodes(node){
+      if(!node) return;
+      drawNodes(node.left);
+      drawNode(node);
+      drawNodes(node.right);
+    }
+
+    function drawAll(){
+      resizeCanvasToDisplaySize();
+      ctx.clearRect(0,0,canvas.width, canvas.height);
+
+      // Soft grid lines
+      ctx.lineWidth = 1;
+      for(let y=0;y<canvas.height;y+=60){
+        ctx.strokeStyle = "rgba(255,255,255,0.03)";
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+      }
+
+      computePositions(tree.root);
+      drawEdges(tree.root);
+      drawNodes(tree.root);
+
+      // Caption
+      ctx.fillStyle = "rgba(200,210,255,0.52)";
+      ctx.font = `${Math.round(12*(window.devicePixelRatio||1))}px ui-sans-serif, system-ui`;
+      ctx.textAlign = "left";
+      ctx.fillText("BST Visualizer: Insert, Search, Delete (Animated)", 12*(window.devicePixelRatio||1), canvas.height - 14*(window.devicePixelRatio||1));
+    }
+
+    window.addEventListener("resize", drawAll);
+
+    // ------------------------------
+    // UI actions
+    // ------------------------------
+    const valueInput = document.getElementById("valueInput");
+    document.getElementById("btnInsert").addEventListener("click", () => {
+      const v = Number(valueInput.value);
+      if(!Number.isFinite(v)) return;
+      const ok = tree.insert(v);
+      if(ok) log(`<span class="t">Insert:</span> Added <b>${v}</b>.`);
+      else log(`<span class="t">Insert:</span> Duplicate <b>${v}</b> ignored.`);
+      valueInput.value = "";
+      drawAll();
+    });
+
+    document.getElementById("btnSearch").addEventListener("click", () => {
+      const v = Number(valueInput.value);
+      if(!Number.isFinite(v)) return;
+      const res = tree.search(v);
+      log(`<span class="t">Search:</span> Path = [${res.path.join(", ")}] → <b>${res.found ? "FOUND" : "NOT FOUND"}</b>`);
+      tree.highlight.clear();
+      res.path.forEach(x => tree.highlight.add(x));
+      if(res.found) tree.highlight.add(v);
+      drawAll();
+    });
+
+    document.getElementById("btnDelete").addEventListener("click", () => {
+      const v = Number(valueInput.value);
+      if(!Number.isFinite(v)) return;
+      log(`<span class="t">Delete:</span> Start deleting <b>${v}</b> (animated).`);
+      tree.deleteAnimate(v);
+      valueInput.value = "";
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      tree.reset();
+      clearLog();
+      drawAll();
+    });
+
+    // Seed a nice default tree for instant visuals
+    [50,30,70,20,40,60,80].forEach(v => tree.insert(v));
+    log(`<span class="t">Seed:</span> Loaded sample BST: 50, 30, 70, 20, 40, 60, 80`);
+    drawAll();
+  </script>
+</body>
+</html>
