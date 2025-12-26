@@ -6,8 +6,6 @@
 
 ## 🔍 Core Concepts Covered
 
-This lab focuses on the foundational building blocks of computer science:
-
 * **Arrays & Strings**
 * **Linked Lists (Singly, Doubly, Circular)**
 * **Stacks & Queues**
@@ -31,37 +29,24 @@ This lab focuses on the foundational building blocks of computer science:
   * VS Code / PyCharm
   * Git & GitHub
 
-> Emphasis is placed on **manual implementation** rather than library shortcuts.
-
----
 
 ## 🧪 Lab Structure
 
-Each folder represents a **data structure or algorithmic topic**, implemented from scratch with examples and test cases.
 
-| Directory       | Topic              | Description                                 |
-| --------------- | ------------------ | ------------------------------------------- |
-| `arrays/`       | Arrays & Strings   | Basic operations and problem solving        |
-| `linked-lists/` | Linked Lists       | Insertions, deletions, traversal            |
-| `stacks/`       | Stacks             | Expression evaluation, recursion simulation |
-| `queues/`       | Queues             | Linear & circular queue implementations     |
-| `sorting/`      | Sorting Algorithms | Bubble, Selection, Merge, Quick             |
-| `searching/`    | Searching          | Linear & Binary Search                      |
-| `trees/`        | Trees              | Binary trees, BST operations                |
-| `graphs/`       | Graphs             | BFS, DFS traversals                         |
-| `hashing/`      | Hash Tables        | Collision handling techniques               |
+
+Topic              | Description                                 |
+ ------------------ | ------------------------------------------- |
+ Arrays & Strings   | Basic operations and problem solving        |
+Linked Lists       | Insertions, deletions, traversal            |
+Stacks             | Expression evaluation, recursion simulation |
+ Queues             | Linear & circular queue implementations     |
+Sorting Algorithms | Bubble, Selection, Merge, Quick             |
+ Searching          | Linear & Binary Search                      |
+ Trees              | Binary trees, BST operations                |
+ Graphs             | BFS, DFS traversals                         |
+Hash Tables        | Collision handling techniques               |
 
 > Each module includes **well-commented code and complexity analysis**.
-
----
-
-## 🧩 What This Repository Shows Recruiters
-
-✔ Strong grasp of **CS fundamentals**
-✔ Ability to implement **efficient algorithms from scratch**
-✔ Understanding of **time and space trade-offs**
-✔ Clean, readable, and modular code
-✔ Preparation for **technical interviews and coding assessments**
 
 ---
 
@@ -124,22 +109,10 @@ Contributions and improvements are welcome.
 ## 👤 Author
 
 **Muhammad Asif**
-**BS Computer Science (3rd Semester)**
-**Aspiring Software Engineer**
 
-Focused on mastering **data structures, algorithms, and problem solving** for real-world software systems.
-
----
 
 ## 📜 License
 
 This project is licensed under the **MIT License**.
-
----
-
-### 📌 Recruiter Note
-
-This repository reflects **strong foundational CS knowledge** and readiness for **internships, junior software roles, and technical interviews**.
-All implementations are intentionally written from scratch to demonstrate understanding.
 
 ---
